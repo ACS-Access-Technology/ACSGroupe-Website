@@ -1,7 +1,30 @@
 import MainLayout from '@/Layouts/MainLayout';
 import { Link, useForm } from '@inertiajs/react';
+import ContactFormFields from '@/Components/UI/ContactFormFields';
 
-export default function TeamSingle() {
+const TEAM_SINGLE_CONTACT_STRINGS = {
+    nameLabel: 'Name',
+    namePlaceholder: 'Enter Your Name Here',
+    required: 'Required',
+    optional: 'Optional',
+    emailLabel: 'Email Address',
+    emailPlaceholder: 'Your Email',
+    phoneLabel: 'Phone',
+    phonePlaceholder: 'Your Phone',
+    attachFile: 'Attach your file',
+    upTo20MB: 'up to 20MB',
+    messageLabel: 'Message',
+    messagePlaceholder: 'Your Message',
+    privacyNotice: 'We will process your personal information in accordance with our Privacy Policy.',
+    consentPrefix: 'I would like to be contacted with news and updates about your',
+    consentLink: 'events and services',
+    messageSent: 'Message envoyé !',
+    sendNow: 'Send Message Now',
+};
+
+// TeamSingle({ staffMember }) : profil alimenté depuis la base de données par
+// PageController@teamSingle, administrable depuis /admin/team.
+export default function TeamSingle({ staffMember }) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         first_name: '',
         email: '',
@@ -16,7 +39,7 @@ export default function TeamSingle() {
     };
 
     return (
-        <MainLayout title="Access Technologies Solutions">
+        <MainLayout title={`${staffMember.name} — Access Technologies Solution (ACS)`}>
             {/* banner */}
             <div className="mil-banner-sm mil-deep-bg">
                 <img src="/img/deco/map.png" alt="background" className="mil-background-image" />
@@ -28,13 +51,13 @@ export default function TeamSingle() {
                                     <i className="fas fa-arrow-left"></i>
                                     <span>Go Back</span>
                                 </Link>
-                                <h2 className="mil-uppercase mil-mb-30">Hayman Andrews</h2>
-                                <p>Engineering</p>
+                                <h2 className="mil-uppercase mil-mb-30">{staffMember.name}</h2>
+                                <p>{staffMember.role}</p>
                             </div>
                         </div>
                         <div className="mil-portrait-position">
                             <div className="mil-portrait-frame">
-                                <img src="/img/faces/t1.png" alt="Hayman Andrews" />
+                                <img src={staffMember.photo} alt={staffMember.name} />
                             </div>
                         </div>
                     </div>
@@ -48,7 +71,7 @@ export default function TeamSingle() {
                     <div className="row justify-content-between">
                         <div className="col-md-8 col-lg-8 col-xl-8">
                             <h3 className="mil-mb-30">Biography</h3>
-                            <p className="mil-mb-60">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam id, repudiandae ducimus ipsam magni neque iste provident fugiat laboriosam officia repellendus dolores enim perspiciatis a cupiditate nihil.</p>
+                            <p className="mil-mb-60 break-words whitespace-normal">{staffMember.bio}</p>
                             <ul className="mil-timeline">
                                 <li>
                                     <h5 className="mil-mb-5">Capital Agency</h5>
@@ -60,7 +83,7 @@ export default function TeamSingle() {
                                     <p className="mil-text-sm">2017-1019</p>
                                 </li>
                                 <li>
-                                    <h5 className="mil-mb-5">Access Technologies Solutions Group</h5>
+                                    <h5 className="mil-mb-5">Access Technologies Solution (ACS) Group</h5>
                                     <p className="mil-text-sm">2019-Today</p>
                                 </li>
                             </ul>
@@ -123,9 +146,9 @@ export default function TeamSingle() {
                                 <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
                                     <img src="/img/icons/md/7.svg" alt="icon" />
                                 </div>
-                                <h4 className="mil-mb-30">Access Technologies Solutions allowed me to grow and <span className="mil-accent">reach goals</span> that I never imagined.</h4>
+                                <h4 className="mil-mb-30">Access Technologies Solution (ACS) allowed me to grow and <span className="mil-accent">reach goals</span> that I never imagined.</h4>
                                 <div className="mil-divider mil-divider-left mil-mb-30"></div>
-                                <p>Hayman Andrews</p>
+                                <p>{staffMember.name}</p>
                             </div>
 
                         </div>
@@ -143,80 +166,15 @@ export default function TeamSingle() {
                     <h2 className="mil-light mil-mb-90">
                         Contact <span className="mil-accent">Me</span>
                     </h2>
-                    <form onSubmit={submit}>
-                        <div className="row">
-                            <div className="col-lg-6">
-
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Name</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter Your Name Here"
-                                        value={data.first_name}
-                                        onChange={(e) => setData('first_name', e.target.value)}
-                                    />
-                                    {errors.first_name && <p className="mil-text-sm mil-accent">{errors.first_name}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input type="email" placeholder="Your Email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
-                                    {errors.email && <p className="mil-text-sm mil-accent">{errors.email}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-60">
-                                    <label>
-                                        <span className="mil-light">Phone</span>
-                                        <span className="mil-light-soft">Optional</span>
-                                    </label>
-                                    <input type="number" placeholder="Your Phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
-                                </div>
-                                <div className="mil-attach-frame mil-mb-60">
-                                    <i className="fas fa-paperclip"></i>
-                                    <label className={`mil-custom-file-input${data.attachment ? ' mil-with-file' : ''}`}>
-                                        <span>{data.attachment ? data.attachment.name : 'Attach your file'}</span>
-                                        <input type="file" id="mil-file-input" onChange={(e) => setData('attachment', e.target.files[0] ?? null)} />
-                                    </label>
-                                    <p className="mil-text-sm mil-light-soft">up to 20MB</p>
-                                </div>
-
-                            </div>
-                            <div className="col-lg-6">
-
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <textarea placeholder="Your Message" value={data.message} onChange={(e) => setData('message', e.target.value)}></textarea>
-                                    {errors.message && <p className="mil-text-sm mil-accent">{errors.message}</p>}
-                                </div>
-                                <p className="mil-text-sm mil-light-soft mil-mb-15">We will process your personal information in accordance with our Privacy Policy.</p>
-
-                                <div className="mil-checbox-frame mil-mb-60">
-                                    <input className="mil-checkbox" id="checkbox-1" type="checkbox" value="value" />
-                                    <label htmlFor="checkbox-1" className="mil-text-sm mil-light">
-                                        I would like to be contacted with news and updates about your{' '}
-                                        <a href="#." className="mil-accent">
-                                            events and services
-                                        </a>
-                                    </label>
-                                </div>
-
-                            </div>
-                            <div className="col-12">
-
-                                <button className="mil-button mil-accent-bg mil-fw" disabled={processing}>
-                                    <span>{recentlySuccessful ? 'Message envoyé !' : 'Send Message Now'}</span>
-                                </button>
-
-                            </div>
-                        </div>
-                    </form>
+                    <ContactFormFields
+                        data={data}
+                        setData={setData}
+                        errors={errors}
+                        processing={processing}
+                        recentlySuccessful={recentlySuccessful}
+                        onSubmit={submit}
+                        strings={TEAM_SINGLE_CONTACT_STRINGS}
+                    />
                 </div>
             </section>
             {/* contact end */}

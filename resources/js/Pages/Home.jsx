@@ -1,42 +1,25 @@
 import MainLayout from '@/Layouts/MainLayout';
 import Slider from '@/Components/Slider';
-import { Link, useForm } from '@inertiajs/react';
+import Partners from '@/Components/Partners';
+import ContactSection from '@/Components/ContactSection';
+import MarqueeSlider from '@/Components/UI/MarqueeSlider';
+import { FeedCard, NewsCard } from '@/Components/UI/ContentCard';
+import IntegrationsPhysics from '@/Components/IntegrationsPhysics';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { useLanguage } from '@/Context/LanguageContext';
+import { TESTIMONIALS } from '@/data/acsExpertise';
+import { resolveImagePath } from '@/utils/image';
 
-const skills = [
-    ['Software Development', 65],
-    ['Web Development', 90],
-    ['UX / UI Design', 50],
-    ['App Development', 95],
-    ['Internet of Things', 60],
-    ['Artificial Intelligence', 90],
-    ['Blockchain', 80],
-];
+const skillPct = [92, 94, 90, 95, 91, 93, 90];
 
-const projects = [
-    { img: 1, name: 'Jane Meldrum' },
-    { img: 2, name: 'Nguta Ithya' },
-    { img: 3, name: 'Roy Bricks' },
-    { img: 4, name: 'Nguta Ithya' },
-];
-
-const posts = [
-    { img: 1, size: 'mil-slide-50', reverse: false },
-    { img: 2, size: 'mil-slide-25', reverse: true },
-    { img: 3, size: 'mil-slide-25', reverse: false },
-    { img: 4, size: 'mil-slide-50', reverse: false },
-    { img: 5, size: 'mil-slide-25', reverse: true },
-    { img: 6, size: 'mil-slide-25', reverse: false },
-];
-
-const reviews = [
-    { face: 1, name: 'Tamzyn French' },
-    { face: 2, name: 'Margaret Williams' },
-    { face: 3, name: 'Tarryn Gillies' },
-    { face: 4, name: 'Tamzyn French' },
-    { face: 2, name: 'Margaret Williams' },
-];
-
-export default function Home() {
+// Home({ heroImages, achievements, latestThinking }) : props Inertia alimentées
+// depuis la base de données par PageController@home (back-office /admin), en
+// remplacement des anciens fichiers statiques resources/js/data/homeFeedData.js.
+export default function Home({ heroImages, achievements, latestThinking }) {
+    const { t, language } = useLanguage();
+    const { siteSettings } = usePage().props;
+    const heroIntervalMs = siteSettings?.slideshowDelayMs ?? 3000;
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         first_name: '',
         email: '',
@@ -44,44 +27,76 @@ export default function Home() {
         message: '',
         attachment: null,
     });
+    const [heroIndex, setHeroIndex] = useState(0);
+    const [availableHeroImages, setAvailableHeroImages] = useState([]);
+
+    // Ne garde que les visuels qui se chargent réellement, pour ne jamais
+    // afficher d'image cassée (404) dans le diaporama du Hero.
+    useEffect(() => {
+        let cancelled = false;
+        Promise.all(
+            heroImages.map(
+                (src) =>
+                    new Promise((resolve) => {
+                        const probe = new window.Image();
+                        probe.onload = () => resolve(src);
+                        probe.onerror = () => resolve(null);
+                        probe.src = resolveImagePath(src);
+                    })
+            )
+        ).then((results) => {
+            if (!cancelled) setAvailableHeroImages(results.filter(Boolean));
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [heroImages]);
+
+    useEffect(() => {
+        if (availableHeroImages.length < 2) return undefined;
+        const id = setInterval(() => {
+            setHeroIndex((i) => (i + 1) % availableHeroImages.length);
+        }, heroIntervalMs);
+        return () => clearInterval(id);
+    }, [availableHeroImages.length, heroIntervalMs]);
+
+    useEffect(() => {
+        console.info('[Language] Rendering page in language:', language);
+    }, [language]);
+
+    useEffect(() => {
+        console.info('[Home] Partners section rendered below Business Success With Technology');
+    }, []);
 
     const submit = (e) => {
         e.preventDefault();
         post(route('contact.store'), { forceFormData: true });
     };
 
+    const illustrationItems = [
+        [t('home.illustration.dedicatedTeam'), 1, route('services.service1'), t('home.illustration.dedicatedTeamText')],
+        [t('home.illustration.developers'), 2, route('services.service1'), t('home.illustration.developersText')],
+        [t('home.illustration.designers'), 3, route('services.service1'), t('home.illustration.designersText')],
+    ];
+    const skills = t('home.skills.labels', []).map((label, i) => [label, skillPct[i]]);
+    const domains = t('home.domains', []);
+    const howItWorksItems = t('home.howItWorks.items', []);
+
     return (
-        <MainLayout title="Access Technologies Solutions">
+        <MainLayout title={`Access Technologies Solution (ACS) - ${t('hero.tagline')}`}>
             {/* banner */}
             <div className="mil-banner mil-top-space-0">
-                <Slider
-                    className="mil-banner-slideshow"
-                    options={{
-                        slidesPerView: 1,
-                        spaceBetween: 0,
-                        speed: 1500,
-                        effect: 'fade',
-                        parallax: true,
-                        autoplay: { delay: 5000 },
-                        loop: true,
-                        pagination: { el: '.mil-pagination', type: 'bullets', clickable: true },
-                    }}
-                >
-                    <div className="swiper-wrapper">
-                        {[1, 2, 3].map((n) => (
-                            <div className="swiper-slide" key={n}>
-                                <img
-                                    src={`/img/photo/${n}.jpg`}
-                                    className="mil-background-image"
-                                    style={{ objectPosition: 'center' }}
-                                    data-swiper-parallax="-100"
-                                    data-swiper-parallax-scale="1.1"
-                                    alt="image"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </Slider>
+                <div className="mil-banner-slideshow">
+                    {availableHeroImages.map((src, i) => (
+                        <img
+                            key={src}
+                            src={resolveImagePath(src)}
+                            className="mil-background-image absolute inset-0 transition-opacity duration-[800ms] ease-in-out"
+                            style={{ objectPosition: 'center', opacity: i === heroIndex ? 1 : 0 }}
+                            alt="image"
+                        />
+                    ))}
+                </div>
                 <div className="mil-overlay"></div>
 
                 <div className="mil-banner-content">
@@ -89,46 +104,50 @@ export default function Home() {
                         <div className="row align-items-center">
                             <div className="col-xl-8">
                                 <span className="mil-suptitle mil-mb-60">
-                                    <span className="mil-light">The Next</span> <span className="mil-accent">Gen</span>
+                                    <span className="mil-light">{t('hero.suptitleSoft')}</span> <span className="mil-accent">{t('hero.suptitleAccent')}</span>
                                 </span>
-                                <h1 className="mil-mb-60">
+                                <h1 className="mil-mb-30">
                                     <span className="mil-uppercase mil-light">
-                                        We Provide Services <br />
-                                        and Solutions
+                                        {t('hero.titleLine1')} <br />
+                                        {t('hero.titleLine2')}
                                     </span>{' '}
-                                    <span className="mil-font-3 mil-accent">To Enterprise</span>
+                                    <span className="mil-font-3 mil-accent">{t('hero.titleAccent')}</span>
                                 </h1>
+                                <p className="mil-light mil-mb-60" style={{ fontWeight: 600, letterSpacing: '.02em' }}>
+                                    {t('hero.tagline')} — {t('hero.slogan')}
+                                </p>
                                 <div className="mil-flex-hori-center">
                                     <div>
                                         <Link href={route('contact')} className="mil-button mil-border mil-light">
-                                            <span>Let&rsquo;s Talk</span>
+                                            <span>{t('cta.letsTalk')}</span>
                                         </Link>
                                     </div>
-                                    <p className="mil-button-descr mil-light-soft">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                    </p>
+                                    <p className="mil-button-descr mil-light-soft">{t('hero.descr')}</p>
                                 </div>
                             </div>
                             <div className="col-xl-4">
                                 <div className="mil-illustration-1">
-                                    {[
-                                        ['Dedicated Team', 1],
-                                        ['Developers', 2],
-                                        ['Designers', 3],
-                                    ].map(([label, n]) => (
+                                    {illustrationItems.map(([label, n, href, text]) => (
                                         <div className={`mil-item mil-item-${n}`} key={n}>
                                             <div className="mil-plus">
                                                 <div className="mil-hover-window">
                                                     <div className="mil-window-content">
-                                                        <h5 className="mil-dark mil-mb-15">Experts</h5>
+                                                        <h5 className="mil-dark mil-mb-15">{label}</h5>
                                                         <div className="mil-divider mil-divider-left mil-mb-15"></div>
-                                                        <p className="mil-text-sm">And here&apos;s some amazing content. It&apos;s very engaging. Right?</p>
+                                                        <p className="mil-text-sm">{text}</p>
                                                     </div>
                                                 </div>
-                                                <div className="mil-item-hover">
-                                                    <div className="mil-plus-icon">+</div>
-                                                    <h6 className="mil-light">{label}</h6>
-                                                </div>
+                                                {href ? (
+                                                    <Link href={href} className="mil-item-hover">
+                                                        <div className="mil-plus-icon">+</div>
+                                                        <h6 className="mil-light">{label}</h6>
+                                                    </Link>
+                                                ) : (
+                                                    <div className="mil-item-hover">
+                                                        <div className="mil-plus-icon">+</div>
+                                                        <h6 className="mil-light">{label}</h6>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -139,76 +158,51 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* partners */}
-            <div className="mil-partners mil-p-90-60">
-                <div className="container">
-                    <div className="mil-partners-frame">
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
-                            <a href="#." key={n}>
-                                <img src={`/img/partners/${n}.png`} alt="partner" />
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <div className="container">
-                <div className="mil-divider"></div>
-            </div>
-
             {/* services */}
             <section className="mil-services mil-p-120-90">
                 <div className="mil-deco" style={{ top: 0, right: '20%' }}></div>
                 <div className="container">
                     <h2 className="mil-mb-30">
-                        How We Can <span className="mil-accent">Help You</span>
+                        {t('home.services.headingLine1')} <span className="mil-accent">{t('home.services.headingAccent')}</span>
                     </h2>
                     <div className="row">
                         <div className="col-lg-6 col-xl-6">
-                            <h4 className="mil-mb-60 mil-mt-30">IT Services</h4>
-                            {[
-                                ['01', 'Dedicated Team', 1],
-                                ['02', 'QA and Testing', 2],
-                                ['03', 'SaaS', 3],
-                            ].map(([num, label, icon]) => (
-                                <div key={label}>
+                            <h4 className="mil-mb-60 mil-mt-30">{t('home.services.groupConseil')}</h4>
+                            {domains.slice(0, 3).map((domain, i) => (
+                                <div key={domain.title}>
                                     <div className="mil-divider mil-divider-left"></div>
                                     <div className="mil-service-item">
                                         <div className="mil-service-icon">
                                             <div className="mil-icon-frame mil-icon-frame-md">
-                                                <img src={`/img/icons/md/${icon}.svg`} alt="icon" />
+                                                <img src={`/img/icons/md/${i + 1}.svg`} alt="icon" />
                                             </div>
                                         </div>
                                         <div className="mil-service-text">
                                             <h5 className="mil-mb-30">
-                                                <span className="mil-accent">{num}</span> {label}
+                                                <span className="mil-accent">{String(i + 1).padStart(2, '0')}</span> {domain.title}
                                             </h5>
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                            <p>{domain.text}</p>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                         <div className="col-lg-6 col-xl-6">
-                            <h4 className="mil-mb-60 mil-mt-30">IT Solutions</h4>
-                            {[
-                                ['01', 'Blockchain', 4],
-                                ['02', 'Artificial Intelligence', 5],
-                                ['03', 'Internet of Things', 6],
-                            ].map(([num, label, icon]) => (
-                                <div key={label}>
+                            <h4 className="mil-mb-60 mil-mt-30">{t('home.services.groupSecurite')}</h4>
+                            {domains.slice(3, 6).map((domain, i) => (
+                                <div key={domain.title}>
                                     <div className="mil-divider mil-divider-left"></div>
                                     <div className="mil-service-item">
                                         <div className="mil-service-icon">
                                             <div className="mil-icon-frame mil-icon-frame-md">
-                                                <img src={`/img/icons/md/${icon}.svg`} alt="icon" />
+                                                <img src={`/img/icons/md/${i + 4}.svg`} alt="icon" />
                                             </div>
                                         </div>
                                         <div className="mil-service-text">
                                             <h5 className="mil-mb-30">
-                                                <span className="mil-accent">{num}</span> {label}
+                                                <span className="mil-accent">{String(i + 1).padStart(2, '0')}</span> {domain.title}
                                             </h5>
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                            <p>{domain.text}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -228,68 +222,37 @@ export default function Home() {
                 <div className="container">
                     <div className="row align-items-center mil-mb-60-adapt">
                         <div className="col-md-6 col-xl-6">
-                            <h2 className="mil-mb-30">Latest Projects</h2>
-                        </div>
-                        <div className="col-md-6 col-xl-6">
-                            <div className="mil-adaptive-right">
-                                <div className="mil-slider-nav mil-mb-30">
-                                    <div className="mil-slider-btn-prev mil-works-prev">
-                                        <i className="fas fa-arrow-left"></i>
-                                        <span className="mil-h6">Prev</span>
-                                    </div>
-                                    <div className="mil-slider-btn-next mil-works-next">
-                                        <span className="mil-h6">Next</span>
-                                        <i className="fas fa-arrow-right"></i>
-                                    </div>
-                                </div>
-                            </div>
+                            <h2 className="mil-mb-30">{t('home.portfolio.heading')}</h2>
                         </div>
                     </div>
 
-                    <Slider
-                        className="mil-works-slider mil-mb-90"
-                        options={{
-                            slidesPerView: 1,
-                            spaceBetween: 30,
-                            speed: 800,
-                            navigation: { prevEl: '.mil-works-prev', nextEl: '.mil-works-next' },
-                            breakpoints: { 768: { slidesPerView: 2 } },
-                        }}
-                    >
-                        <div className="swiper-wrapper">
-                            {projects.map((p, i) => (
-                                <div className="swiper-slide" key={i}>
-                                    <Link href={route('project')} className="mil-card">
-                                        <div className="mil-cover-frame">
-                                            <img src={`/img/projects/${p.img}.jpg`} alt="project" />
-                                        </div>
-                                        <div className="mil-description">
-                                            <div className="mil-card-title">
-                                                <h4 className="mil-mb-20">Easy &amp; Most Powerful Server Platform.</h4>
-                                                <h6>
-                                                    by: <span className="mil-accent">{p.name}</span>
-                                                </h6>
-                                            </div>
-                                            <div className="mil-card-text">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </Slider>
+                    <MarqueeSlider
+                        items={achievements}
+                        durationSeconds={50}
+                        renderItem={(item, _i, idx) => (
+                            <FeedCard
+                                key={`${item.id}-${idx}`}
+                                href={route('project')}
+                                img={resolveImagePath(item.photo)}
+                                alt={item.title}
+                                title={item.title}
+                                byLabel={t('home.portfolio.cardBy')}
+                                byName="ACS Group"
+                                text={[item.category, item.location].filter(Boolean).join(' — ')}
+                            />
+                        )}
+                    />
                     <div className="row align-items-center">
                         <div className="col-md-6 col-xl-6">
                             <Link href={route('portfolio')} className="mil-link mil-mb-30">
-                                <span>View All Cases</span>
+                                <span>{t('home.portfolio.viewAllCases')}</span>
                                 <i className="fas fa-arrow-right"></i>
                             </Link>
                         </div>
                         <div className="col-md-6 col-xl-6">
                             <div className="mil-adaptive-right">
                                 <Link href={route('contact')} className="mil-button mil-border mil-mb-30">
-                                    <span>Get Started</span>
+                                    <span>{t('home.portfolio.getStarted')}</span>
                                 </Link>
                             </div>
                         </div>
@@ -302,26 +265,21 @@ export default function Home() {
                 <div className="mil-deco" style={{ top: 0, right: '20%' }}></div>
                 <div className="mil-deco" style={{ bottom: 0, left: '30%', transform: 'rotate(180deg)' }}></div>
                 <div className="container">
-                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Discover Our Company</span>
+                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('home.howItWorks.suptitle')}</span>
                     <h2 className="mil-mb-90">
-                        How We <span className="mil-accent">Collaborate</span> With You
+                        {t('home.howItWorks.headingLine1')} <span className="mil-accent">{t('home.howItWorks.headingAccent')}</span> {t('home.howItWorks.headingEnd')}
                     </h2>
                     <div className="row">
-                        {[
-                            ['Thinking Big', 1],
-                            ['Starting Small', 2],
-                            ['Creating Fast', 3],
-                            ['Innovating Scale', 4],
-                        ].map(([label, n]) => (
-                            <div className="col-md-6 col-xl-3" key={label}>
+                        {howItWorksItems.map((item, i) => (
+                            <div className="col-md-6 col-xl-3" key={item.title}>
                                 <div className="mil-mb-60">
                                     <div className="mil-icon-box-head mil-mb-30">
                                         <div className="mil-icon-frame mil-icon-frame-sm">
-                                            <img src={`/img/icons/sm/${n}.svg`} alt="icon" />
+                                            <img src={`/img/icons/sm/${i + 1}.svg`} alt="icon" />
                                         </div>
-                                        <h5>{label}</h5>
+                                        <h5>{item.title}</h5>
                                     </div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                    <p>{item.text}</p>
                                 </div>
                             </div>
                         ))}
@@ -329,14 +287,14 @@ export default function Home() {
                     <div className="row align-items-center">
                         <div className="col-md-6 col-xl-6">
                             <a href="#." className="mil-link mil-mb-30">
-                                <span>Learn More</span>
+                                <span>{t('home.howItWorks.learnMore')}</span>
                                 <i className="fas fa-arrow-right"></i>
                             </a>
                         </div>
                         <div className="col-md-6 col-xl-6">
                             <div className="mil-adaptive-right">
                                 <a href="#." className="mil-button mil-border mil-mb-30">
-                                    <span>How We Work</span>
+                                    <span>{t('home.howItWorks.howWeWork')}</span>
                                 </a>
                             </div>
                         </div>
@@ -349,23 +307,20 @@ export default function Home() {
                 <div className="container">
                     <div className="row align-items-end mil-mb-90">
                         <div className="col-xl-6">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Our Skill</span>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('home.skills.suptitle')}</span>
                             <h2>
-                                Business <span className="mil-accent">Success</span> With <br />
-                                Technology
+                                {t('home.skills.headingLine1')} <span className="mil-accent">{t('home.skills.headingAccent')}</span> <br />
+                                {t('home.skills.headingLine2')}
                             </h2>
                         </div>
                         <div className="col-xl-6">
-                            <p className="mil-mt-60-adapt">
-                                It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a
-                                more-or-less normal distribution of letters, as opposed to using content here.
-                            </p>
+                            <p className="mil-mt-60-adapt">{t('home.skills.text')}</p>
                         </div>
                     </div>
 
-                    <div className="row align-items-center">
+                    <div className="row align-items-center justify-content-center text-center">
                         {skills.map(([label, pct]) => (
-                            <div className="col-md-6 col-xl-3" key={label}>
+                            <div className="col-md-6 col-xl-3 mil-text-center" key={label}>
                                 <h6 className="mil-mb-30">{label}</h6>
                                 <div className="mil-skill-frame mil-mb-60">
                                     <div className="mil-skill-track">
@@ -375,15 +330,22 @@ export default function Home() {
                                 </div>
                             </div>
                         ))}
-                        <div className="col-md-6 col-xl-3 mil-text-center">
+                        <div className="col-md-6 col-xl-3 mil-text-center flex flex-col items-center justify-center">
                             <a href="#." className="mil-link mil-mb-30">
-                                <span>More</span>
+                                <span>{t('home.skills.more')}</span>
                                 <i className="fas fa-arrow-right"></i>
                             </a>
                         </div>
                     </div>
                 </div>
             </section>
+
+            {/* partners */}
+            <div className="mil-partners mil-p-90-60">
+                <div className="container">
+                    <Partners />
+                </div>
+            </div>
 
             <div className="container">
                 <div className="mil-divider"></div>
@@ -395,72 +357,50 @@ export default function Home() {
                 <div className="container">
                     <div className="row align-items-center mil-mb-90">
                         <div className="col-md-6 col-xl-6">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Our Latest News</span>
-                            <h2>Latest Thinking</h2>
-                        </div>
-                        <div className="col-md-6 col-xl-6">
-                            <div className="mil-adaptive-right mil-mt-60-adapt">
-                                <div className="mil-slider-nav">
-                                    <div className="mil-slider-btn-prev mil-blog-prev">
-                                        <i className="fas fa-arrow-left"></i>
-                                        <span className="mil-h6">Prev</span>
-                                    </div>
-                                    <div className="mil-slider-btn-next mil-blog-next">
-                                        <span className="mil-h6">Next</span>
-                                        <i className="fas fa-arrow-right"></i>
-                                    </div>
-                                </div>
-                            </div>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('home.blog.suptitle')}</span>
+                            <h2>{t('home.blog.heading')}</h2>
                         </div>
                     </div>
-                    <Slider
-                        className="mil-blog-slider mil-mb-90"
-                        options={{
-                            spaceBetween: 30,
-                            speed: 800,
-                            slidesPerView: 1,
-                            navigation: { prevEl: '.mil-blog-prev', nextEl: '.mil-blog-next' },
-                            breakpoints: { 768: { slidesPerView: 2 }, 992: { slidesPerView: 2 }, 1200: { slidesPerView: 'auto' } },
-                        }}
-                    >
-                        <div className="swiper-wrapper">
-                            {posts.map((post, i) => (
-                                <div className={`swiper-slide ${post.size}`} key={i}>
-                                    <Link href={route('publication')} className={`mil-card${post.size === 'mil-slide-25' ? ' mil-card-sm' : ''}${post.reverse ? ' mil-reverse-sm' : ''}`}>
-                                        {!post.reverse && (
-                                            <div className="mil-cover-frame">
-                                                <img src={`/img/blog/${post.img}.jpg`} alt="project" />
-                                            </div>
-                                        )}
-                                        <div className="mil-description">
-                                            <div className="mil-card-title">
-                                                <h4 className="mil-mb-20">Easy &amp; Most Powerful Server Platform.</h4>
-                                                <h6>
-                                                    by: <span className="mil-accent">Jane Meldrum</span>
-                                                </h6>
-                                            </div>
-                                            <div className="mil-card-text">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                            </div>
-                                        </div>
-                                        {post.reverse && (
-                                            <div className="mil-cover-frame">
-                                                <img src={`/img/blog/${post.img}.jpg`} alt="project" />
-                                            </div>
-                                        )}
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </Slider>
+
+                    <MarqueeSlider
+                        items={latestThinking}
+                        durationSeconds={48}
+                        renderItem={(post, _i, idx) => (
+                            <NewsCard
+                                key={`${post.id}-${idx}`}
+                                img={resolveImagePath(post.image)}
+                                alt={language === 'en' && post.title_en ? post.title_en : post.title}
+                                title={language === 'en' && post.title_en ? post.title_en : post.title}
+                                byLabel={t('home.blog.cardBy')}
+                                byName={post.author}
+                                text={language === 'en' && post.excerpt_en ? post.excerpt_en : post.excerpt}
+                                externalLink={post.external_link}
+                            />
+                        )}
+                    />
                     <div className="row align-items-center">
                         <div className="col-12">
                             <Link href={route('blog')} className="mil-link">
-                                <span>View More Insights</span>
+                                <span>{t('home.blog.viewMore')}</span>
                                 <i className="fas fa-arrow-right"></i>
                             </Link>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            {/* tools integration */}
+            <section className="relative bg-[#161626] py-24 min-h-[480px] sm:min-h-[600px] lg:min-h-[750px] overflow-hidden">
+                <IntegrationsPhysics />
+
+                <div className="relative z-10 container mx-auto px-4 text-center pointer-events-none">
+                    <h2 className="text-white! text-3xl md:text-4xl font-bold max-w-3xl mx-auto mb-10">{t('home.toolsIntegration.heading')}</h2>
+                    <Link
+                        href={route('services.service1')}
+                        className="pointer-events-auto inline-flex items-center gap-2 rounded-[15px] bg-red-600 hover:bg-red-700 px-8 py-4 text-sm font-bold uppercase tracking-wide text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(220,38,38,0.4)]"
+                    >
+                        {t('home.toolsIntegration.cta')} ↗
+                    </Link>
                 </div>
             </section>
 
@@ -470,20 +410,18 @@ export default function Home() {
                 <div className="container">
                     <div className="row align-items-center mil-mb-90">
                         <div className="col-md-6 col-xl-6">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Testimonial</span>
-                            <h2>
-                                What Our <span className="mil-accent">Clients</span> Say
-                            </h2>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('sections.testimonial')}</span>
+                            <h2>{t('sections.clientsSay')}</h2>
                         </div>
                         <div className="col-md-6 col-xl-6">
                             <div className="mil-adaptive-right mil-mt-60-adapt">
                                 <div className="mil-slider-nav">
                                     <div className="mil-slider-btn-prev mil-revi-prev">
                                         <i className="fas fa-arrow-left"></i>
-                                        <span className="mil-h6">Prev</span>
+                                        <span className="mil-h6">{t('common.prev')}</span>
                                     </div>
                                     <div className="mil-slider-btn-next mil-revi-next">
-                                        <span className="mil-h6">Next</span>
+                                        <span className="mil-h6">{t('common.next')}</span>
                                         <i className="fas fa-arrow-right"></i>
                                     </div>
                                 </div>
@@ -495,31 +433,40 @@ export default function Home() {
                         options={{
                             slidesPerView: 1,
                             spaceBetween: 30,
-                            speed: 800,
+                            speed: 2000,
+                            loop: true,
+                            autoplay: { delay: 8000, disableOnInteraction: false },
                             navigation: { prevEl: '.mil-revi-prev', nextEl: '.mil-revi-next' },
                             breakpoints: { 768: { slidesPerView: 2 }, 992: { slidesPerView: 3 } },
                         }}
                     >
                         <div className="swiper-wrapper">
-                            {reviews.map((r, i) => (
-                                <div className="swiper-slide" key={i}>
+                            {TESTIMONIALS.map((item) => (
+                                <div className="swiper-slide" key={item.id}>
                                     <div className="mil-review">
                                         <div className="mil-stars mil-mb-30">
                                             <img src="/img/icons/sm/11.svg" alt="quote" />
                                             <ul>
-                                                {[1, 2, 3, 4, 5].map((s) => (
+                                                {Array.from({ length: item.rating }).map((_, s) => (
                                                     <li key={s}>
                                                         <i className="fas fa-star"></i>
                                                     </li>
                                                 ))}
                                             </ul>
                                         </div>
-                                        <p className="mil-mb-30">It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</p>
+                                        <p className="mil-mb-30">{item.comment}</p>
                                         <div className="mil-author">
-                                            <img src={`/img/faces/${r.face}.jpg`} alt="Customer" />
+                                            <img
+                                                src={resolveImagePath(item.avatar)}
+                                                alt={item.name}
+                                                className="w-14 h-14 rounded-full object-cover border-2 border-red-500/30 shadow-md"
+                                                loading="lazy"
+                                            />
                                             <div className="mil-name">
-                                                <h6 className="mil-mb-5">{r.name}</h6>
-                                                <span className="mil-text-sm">Agency Design</span>
+                                                <h6 className="mil-mb-5">{item.name}</h6>
+                                                <span className="mil-text-sm">
+                                                    {item.role} — {item.company}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -530,83 +477,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* contact */}
-            <section className="mil-contact mil-gradient-bg mil-p-120-0">
-                <div className="mil-deco mil-deco-accent" style={{ top: 0, right: '10%' }}></div>
-                <div className="container">
-                    <h2 className="mil-light mil-mb-90">
-                        Contact <span className="mil-accent">Us</span>
-                    </h2>
-                    <form onSubmit={submit}>
-                        <div className="row">
-                            <div className="col-lg-6">
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Name</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter Your Name Here"
-                                        value={data.first_name}
-                                        onChange={(e) => setData('first_name', e.target.value)}
-                                    />
-                                    {errors.first_name && <p className="mil-text-sm mil-accent">{errors.first_name}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input type="email" id="email" placeholder="Your Email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
-                                    {errors.email && <p className="mil-text-sm mil-accent">{errors.email}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-60">
-                                    <label>
-                                        <span className="mil-light">Phone</span>
-                                        <span className="mil-light-soft">Optional</span>
-                                    </label>
-                                    <input type="number" placeholder="Your Phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
-                                </div>
-                                <div className="mil-attach-frame mil-mb-60">
-                                    <i className="fas fa-paperclip"></i>
-                                    <label className={`mil-custom-file-input${data.attachment ? ' mil-with-file' : ''}`}>
-                                        <span>{data.attachment ? data.attachment.name : 'Attach your file'}</span>
-                                        <input type="file" id="mil-file-input" onChange={(e) => setData('attachment', e.target.files[0] ?? null)} />
-                                    </label>
-                                    <p className="mil-text-sm mil-light-soft">up to 20MB</p>
-                                </div>
-                            </div>
-                            <div className="col-lg-6">
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <textarea placeholder="Your Message" value={data.message} onChange={(e) => setData('message', e.target.value)}></textarea>
-                                    {errors.message && <p className="mil-text-sm mil-accent">{errors.message}</p>}
-                                </div>
-                                <p className="mil-text-sm mil-light-soft mil-mb-15">We will process your personal information in accordance with our Privacy Policy.</p>
-
-                                <div className="mil-checbox-frame mil-mb-60">
-                                    <input className="mil-checkbox" id="checkbox-1" type="checkbox" value="value" />
-                                    <label htmlFor="checkbox-1" className="mil-text-sm mil-light">
-                                        I would like to be contacted with news and updates about your{' '}
-                                        <a href="#." className="mil-accent">
-                                            events and services
-                                        </a>
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <button className="mil-button mil-accent-bg mil-fw" disabled={processing}>
-                                    <span>{recentlySuccessful ? 'Message envoyé !' : 'Send Message Now'}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </section>
+            <ContactSection data={data} setData={setData} errors={errors} processing={processing} recentlySuccessful={recentlySuccessful} onSubmit={submit} />
         </MainLayout>
     );
 }

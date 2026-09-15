@@ -1,7 +1,48 @@
 import MainLayout from '@/Layouts/MainLayout';
 import { Link, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { ABOUT_TEXT, STATS, TEAM_MEMBERS } from '@/data/acsExpertise';
+import { useLanguage } from '@/Context/LanguageContext';
+import ContactSection from '@/Components/ContactSection';
+import Button from '@/Components/Button';
+import PageHeader from '@/Components/UI/PageHeader';
+import { resolveImagePath } from '@/utils/image';
+
+const TEAM_PHOTO_CLASS = 'object-cover object-top h-72 w-full rounded-xl transition-transform duration-300 ease-in-out group-hover:scale-105';
+const TEAM_PHOTO_CLASS_STATIC = 'object-cover object-top h-72 w-full rounded-xl';
+
+function TeamMemberCard({ member }) {
+    return (
+        <div className="group bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+            <div className="overflow-hidden">
+                {member.image ? (
+                    <img
+                        src={resolveImagePath(member.image)}
+                        alt={member.name}
+                        className={member.imageClass || (member.disableHoverZoom ? TEAM_PHOTO_CLASS_STATIC : TEAM_PHOTO_CLASS)}
+                    />
+                ) : (
+                    <div className="bg-slate-800/60 dark:bg-slate-900 border-2 border-dashed border-slate-700 h-72 w-full rounded-xl flex items-center justify-center text-slate-500 text-xs font-medium">
+                        Photo à venir
+                    </div>
+                )}
+            </div>
+            <div className="p-6">
+                <h4 className="mil-dark mil-mb-5">{member.name}</h4>
+                <p className="mil-accent mil-text-sm mil-mb-15">{member.role}</p>
+                <p className="mil-text-sm mil-dark-soft">{member.bio}</p>
+                {member.linkedin && (
+                    <a href={member.linkedin} className="mil-accent mil-text-sm" target="_blank" rel="noopener noreferrer">
+                        LinkedIn
+                    </a>
+                )}
+            </div>
+        </div>
+    );
+}
 
 export default function About() {
+    const { t, language } = useLanguage();
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         first_name: '',
         email: '',
@@ -10,31 +51,30 @@ export default function About() {
         attachment: null,
     });
 
+    useEffect(() => {
+        console.info('[Language] Rendering contact/global page in:', language);
+    }, [language]);
+
     const submit = (e) => {
         e.preventDefault();
         post(route('contact.store'), { forceFormData: true });
     };
 
+    const checklist = t('about.checklist', []);
+    const features = t('about.features', []);
+    const featureIcons = [6, 10, 2, 4, 5];
+    const values = t('about.values', []);
+
     return (
-        <MainLayout title="Access Technologies Solutions">
+        <MainLayout title="A propos — Access Technologies Solution (ACS)">
             {/* banner */}
-            <div className="mil-banner-sm mil-deep-bg">
-                <img src="/img/deco/map.png" alt="background" className="mil-background-image" />
-                <div className="mil-deco mil-deco-accent" style={{ top: '47%', right: '10%', transform: 'rotate(90deg)' }}></div>
-                <div className="mil-banner-content">
-                    <div className="container mil-relative">
-                        <ul className="mil-breadcrumbs mil-mb-30">
-                            <li>
-                                <Link href={route('home')}>Home</Link>
-                            </li>
-                            <li>
-                                <Link href={route('about')}>About us</Link>
-                            </li>
-                        </ul>
-                        <h2 className="mil-uppercase">Enterprise</h2>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title={t('about.bannerTitle')}
+                breadcrumbs={[
+                    { label: t('about.breadcrumbHome'), href: route('home') },
+                    { label: t('about.breadcrumbLabel'), href: route('about') },
+                ]}
+            />
             {/* banner end */}
 
             {/* call to action */}
@@ -42,22 +82,20 @@ export default function About() {
                 <div className="container">
                     <div className="row align-items-center">
                         <div className="col-lg-12 col-xl-6">
-                            <h4 className="mil-mb-60">
-                                Lorem ipsum dolor sit amet, <span className="mil-accent">consectetur adipiscing elit</span>, sed do eiusmod tempor incididunt ut labor aliqua.
-                            </h4>
+                            <h4 className="mil-mb-60">{t('about.heroLine')}</h4>
                         </div>
                         <div className="col-lg-12 col-xl-6">
                             <div className="mil-adaptive-right">
-                                <a href="#." className="mil-button mil-border mil-mr-15 mil-mb-30">
-                                    <span>Talk To an Expert</span>
-                                </a>
+                                <Button variant="secondary" href={route('contact')} className="mil-mr-15 mil-mb-30">
+                                    {t('about.talkToExpert')}
+                                </Button>
                                 <a href="#." className="mil-button-with-label mil-mb-60">
                                     <div className="mil-button mil-border mil-icon-button">
                                         <span>
                                             <i className="fas fa-play"></i>
                                         </span>
                                     </div>
-                                    <span className="mil-dark">Watch Video</span>
+                                    <span className="mil-dark">{t('about.watchVideo')}</span>
                                 </a>
                             </div>
                         </div>
@@ -75,54 +113,33 @@ export default function About() {
                             <div className="mil-circle-illustration">
                                 <div className="mil-circle-bg"></div>
                                 <div className="mil-image-frame">
-                                    <img src="/img/faces/t3.png" alt="img" />
+                                    <img
+                                        src="/img/staff/1H5A0333.jpg"
+                                        alt="Professionnelle tech chez Access Technologies Solution (ACS)"
+                                    />
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-6">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Firm Overview</span>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('about.whoWeAreSuptitle')}</span>
                             <h2 className="mil-mb-50">
-                                We Specialize in <br />
-                                <span className="mil-accent">Transforming Your Idea</span> or Business in The Current
-                                <br /> Digital Era.
+                                {t('about.whoWeAreHeadingLine1')} <br />
+                                <span className="mil-accent">{t('about.whoWeAreHeadingAccent')}</span>
+                                <br /> {t('about.whoWeAreHeadingLine2')}
                             </h2>
 
-                            <p className="mil-mb-50">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas
-                                accumsan lacus vel facilisis.{' '}
-                            </p>
+                            <p className="mil-mb-50">{ABOUT_TEXT}</p>
 
                             <div className="row align-items-end">
-                                <div className="col-xl-7">
+                                <div className="col-12">
                                     <ul className="mil-check-icon-list mil-mb-60">
-                                        <li>
-                                            <img src="/img/icons/sm/12.svg" alt="icon" />
-                                            <span className="mil-dark">Quis suspendisse ultrices gravida.</span>
-                                        </li>
-                                        <li>
-                                            <img src="/img/icons/sm/12.svg" alt="icon" />
-                                            <span className="mil-dark">Consectetur adipiscing elit.</span>
-                                        </li>
-                                        <li>
-                                            <img src="/img/icons/sm/12.svg" alt="icon" />
-                                            <span className="mil-dark">Quis suspendisse ultrices gravida.</span>
-                                        </li>
-                                        <li>
-                                            <img src="/img/icons/sm/12.svg" alt="icon" />
-                                            <span className="mil-dark">Consectetur adipiscing elit.</span>
-                                        </li>
+                                        {checklist.map((item) => (
+                                            <li key={item}>
+                                                <img src="/img/icons/sm/12.svg" alt="icon" />
+                                                <span className="mil-dark">{item}</span>
+                                            </li>
+                                        ))}
                                     </ul>
-                                </div>
-                                <div className="col-xl-5">
-                                    <Link href={route('team.single')} className="mil-post-sm mil-mb-60">
-                                        <div className="mil-cover-frame">
-                                            <img src="/img/faces/1.jpg" alt="cover" />
-                                        </div>
-                                        <div className="mil-description">
-                                            <h4 className="mil-font-3 mil-accent">Jane Meldrum</h4>
-                                            <p className="mil-text-sm">CEO &amp; Co-Founder</p>
-                                        </div>
-                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -138,46 +155,25 @@ export default function About() {
                     <div className="row justify-content-between">
                         <div className="col-lg-5">
                             <div className="mil-h1">
-                                8<span className="mil-accent">+</span>
+                                35<span className="mil-accent">+</span>
                             </div>
-                            <h6 className="mil-mb-60">Years Experience</h6>
+                            <h6 className="mil-mb-60">{t('about.professionalsLabel')}</h6>
 
-                            <h2 className="mil-mb-60">We Run All Kinds of IT Services That Vow Your Success</h2>
+                            <h2 className="mil-mb-60">{t('about.statsHeading')}</h2>
                         </div>
                         <div className="col-lg-6">
-                            <h3 className="mil-mb-60">
-                                Accelerate <span className="mil-accent">Innovation</span> with world class tech teams We&rsquo;ll match you to an entire <span className="mil-accent">Remote Technology</span>
-                            </h3>
+                            <h3 className="mil-mb-60">{t('about.statsText')}</h3>
 
                             <div className="row">
-                                <div className="col-lg-6">
-                                    <h6 className="mil-mb-30">
-                                        <span className="mil-accent">16+</span>&nbsp; Software Development
-                                    </h6>
+                                {STATS.map((stat) => (
+                                    <div className="col-lg-6" key={stat.label}>
+                                        <h6 className="mil-mb-30">
+                                            <span className="mil-accent">{stat.value}</span>&nbsp; {stat.label}
+                                        </h6>
 
-                                    <div className="mil-divider mil-divider-left mil-mb-60"></div>
-                                </div>
-                                <div className="col-lg-6">
-                                    <h6 className="mil-mb-30">
-                                        <span className="mil-accent">3+</span>&nbsp; Years Client Engagement
-                                    </h6>
-
-                                    <div className="mil-divider mil-divider-left mil-mb-60"></div>
-                                </div>
-                                <div className="col-lg-6">
-                                    <h6 className="mil-mb-30">
-                                        <span className="mil-accent">360+</span>&nbsp; App Development
-                                    </h6>
-
-                                    <div className="mil-divider mil-divider-left mil-mb-60"></div>
-                                </div>
-                                <div className="col-lg-6">
-                                    <h6 className="mil-mb-30">
-                                        <span className="mil-accent">520+</span>&nbsp; Web Development
-                                    </h6>
-
-                                    <div className="mil-divider mil-divider-left mil-mb-60"></div>
-                                </div>
+                                        <div className="mil-divider mil-divider-left mil-mb-60"></div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -189,35 +185,38 @@ export default function About() {
                 <div className="mil-divider"></div>
             </div>
 
-            {/* partners */}
-            <div className="mil-partners mil-p-120-90">
+            {/* director's word */}
+            <section className="mil-deep-bg mil-p-120-60">
+                <div className="mil-deco" style={{ top: 0, right: '20%' }}></div>
                 <div className="container">
-                    <div className="mil-partners-frame">
-                        <a href="#.">
-                            <img src="/img/partners/1.png" alt="partner" />
-                        </a>
-                        <a href="#.">
-                            <img src="/img/partners/2.png" alt="partner" />
-                        </a>
-                        <a href="#.">
-                            <img src="/img/partners/3.png" alt="partner" />
-                        </a>
-                        <a href="#.">
-                            <img src="/img/partners/4.png" alt="partner" />
-                        </a>
-                        <a href="#.">
-                            <img src="/img/partners/5.png" alt="partner" />
-                        </a>
-                        <a href="#.">
-                            <img src="/img/partners/6.png" alt="partner" />
-                        </a>
+                    <div className="row justify-content-between align-items-center">
+                        <div className="col-lg-5 mil-mb-60">
+                            <div className="mil-circle-illustration">
+                                <div className="mil-circle-bg"></div>
+                                <div className="mil-image-frame">
+                                    <img
+                                        src="/img/staff/IMG_9503.jpg"
+                                        alt={t('about.founderName')}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-lg-6 mil-mb-60">
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('about.directorWordSuptitle')}</span>
+                            <h2 className="mil-mb-50">{t('about.directorWordTitle')}</h2>
+                            <p className="mil-mb-50">{t('about.directorWordText')}</p>
+                            <h4 className="mil-mb-5 font-black uppercase tracking-wider text-xl md:text-2xl text-white drop-shadow-[0_2px_10px_rgba(220,38,38,0.3)] hover:text-red-500 transition-colors duration-300 after:block after:w-12 after:h-[2px] after:bg-red-600 after:mt-2">
+                                {t('about.directorWordSignatureName')}
+                            </h4>
+                            <p className="text-slate-400 text-sm font-medium tracking-normal normal-case">{t('about.directorWordSignatureRole')}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {/* partners end */}
+            </section>
+            {/* director's word end */}
 
-            {/* about */}
-            <section className="mil-deep-bg mil-p-120-60">
+            {/* mission */}
+            <section className="mil-p-120-60">
                 <div className="mil-deco" style={{ top: 0, right: '15%' }}></div>
                 <div className="container">
                     <div className="row justify-content-between align-items-center">
@@ -225,295 +224,106 @@ export default function About() {
                             <div className="mil-circle-illustration">
                                 <div className="mil-circle-bg"></div>
                                 <div className="mil-image-frame">
-                                    <img src="/img/faces/t2.png" alt="img" />
+                                    <img
+                                        src="/img/staff/1H5A0381.jpg"
+                                        alt="Expert IT chez Access Technologies Solution (ACS)"
+                                    />
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-6 mil-mb-60">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">IT Enterprise</span>
-                            <h2 className="mil-mb-50">Our Mission</h2>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('about.missionSuptitle')}</span>
+                            <h2 className="mil-mb-50">{t('about.missionHeading')}</h2>
 
-                            <p className="mil-mb-50">
-                                Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &lsquo;lorem ipsum&rsquo; will uncover many web sites still in their
-                                infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose. There are many variations of passages majority.
-                            </p>
+                            <p className="mil-mb-50">{t('about.missionText')}</p>
 
                             <ul className="mil-simple-list">
-                                <li>Accelerate innovation.</li>
-                                <li>With world class tech teams.</li>
-                                <li>Our all service offerings to enhance.</li>
+                                {t('about.missionList', []).map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
                             </ul>
                         </div>
                     </div>
                 </div>
             </section>
-            {/* about end */}
+            {/* mission end */}
 
             {/* features */}
             <section className="mil-p-120-120">
                 <div className="container">
-                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Discover Our Company</span>
-                    <h2 className="mil-mb-120">Why Work With Us</h2>
+                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('about.whySuptitle')}</span>
+                    <h2 className="mil-mb-120">{t('about.whyHeading')}</h2>
 
                     <div className="mil-divider"></div>
-                    <div className="mil-line-icon-box">
-                        <div className="row align-items-center">
-                            <div className="col-xl-2">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
-                                    <img src="/img/icons/md/6.svg" alt="icon" />
+                    {features.map((feature, i) => (
+                        <div key={feature.title}>
+                            <div className="mil-line-icon-box">
+                                <div className="row align-items-center">
+                                    <div className="col-xl-2">
+                                        <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
+                                            <img src={`/img/icons/md/${featureIcons[i]}.svg`} alt="icon" />
+                                        </div>
+                                    </div>
+                                    <div className="col-xl-4">
+                                        <h4 className="mil-mb-30">{feature.title}</h4>
+                                    </div>
+                                    <div className="col-xl-6">
+                                        <p className="mil-box-text mil-mb-30">{feature.text}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="col-xl-4">
-                                <h4 className="mil-mb-30">Top Expertise</h4>
-                            </div>
-                            <div className="col-xl-6">
-                                <p className="mil-box-text mil-mb-30">
-                                    Et iusto odio dignissim qui blandit praesent luptatum zzril delenit. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla
-                                    facilisis at vero eros et accumsan.
-                                </p>
-                            </div>
+                            <div className="mil-divider"></div>
                         </div>
-                    </div>
-                    <div className="mil-divider"></div>
-                    <div className="mil-line-icon-box">
-                        <div className="row align-items-center">
-                            <div className="col-xl-2">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                            </div>
-                            <div className="col-xl-4">
-                                <h4 className="mil-mb-30">Quality Management</h4>
-                            </div>
-                            <div className="col-xl-6">
-                                <p className="mil-box-text mil-mb-30">
-                                    Facilisis at vero eros et accumsan et iusto odio dignissim. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla qui
-                                    blandit praesent luptatum zzril delenit.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mil-divider"></div>
-                    <div className="mil-line-icon-box">
-                        <div className="row align-items-center">
-                            <div className="col-xl-2">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
-                                    <img src="/img/icons/md/2.svg" alt="icon" />
-                                </div>
-                            </div>
-                            <div className="col-xl-4">
-                                <h4 className="mil-mb-30">Utmost Flexibility</h4>
-                            </div>
-                            <div className="col-xl-6">
-                                <p className="mil-box-text mil-mb-30">
-                                    Dolore eu feugiat nulla facilisis at. Quis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum vero eros et accumsan et iusto odio dignissim qui
-                                    blandit praesent luptatum zzril delenit.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mil-divider"></div>
-                    <div className="mil-line-icon-box">
-                        <div className="row align-items-center">
-                            <div className="col-xl-2">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
-                                    <img src="/img/icons/md/4.svg" alt="icon" />
-                                </div>
-                            </div>
-                            <div className="col-xl-4">
-                                <h4 className="mil-mb-30">Agility</h4>
-                            </div>
-                            <div className="col-xl-6">
-                                <p className="mil-box-text mil-mb-30">
-                                    Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui
-                                    blandit praesent luptatum zzril.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mil-divider"></div>
-                    <div className="mil-line-icon-box">
-                        <div className="row align-items-center">
-                            <div className="col-xl-2">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-mb-30">
-                                    <img src="/img/icons/md/5.svg" alt="icon" />
-                                </div>
-                            </div>
-                            <div className="col-xl-4">
-                                <h4 className="mil-mb-30">Innovation</h4>
-                            </div>
-                            <div className="col-xl-6">
-                                <p className="mil-box-text mil-mb-30">
-                                    Blandit praesent luptatum zzril. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan
-                                    et iusto odio dignissim qui delenit.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mil-divider"></div>
+                    ))}
                 </div>
             </section>
             {/* features end */}
 
-            {/* features */}
+            {/* values */}
             <section className="mil-deep-bg mil-p-120-60">
                 <div className="mil-deco" style={{ top: 0, right: '25%' }}></div>
                 <div className="container">
-                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30">For Enterprise</span>
+                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('about.valuesSuptitle')}</span>
                     <h2 className="mil-mb-120">
-                        We Live by <span className="mil-accent">Powerful</span> Values
+                        {t('about.valuesHeadingLine1')} <span className="mil-accent">{t('about.valuesHeadingAccent')}</span>
                     </h2>
 
                     <div className="row">
-                        <div className="col-md-6 col-xl-4">
-                            <div className="mil-icon-box-2 mil-mb-60">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                                <div className="mil-box-text">
-                                    <h4 className="mil-mb-30">We Are</h4>
-                                    <p className="mil-box-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-xl-4">
-                            <div className="mil-icon-box-2 mil-mb-60">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                                <div className="mil-box-text">
-                                    <h4 className="mil-mb-30">We Deep Dive</h4>
-                                    <p className="mil-box-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        {values.map((value) => (
+                            <div className="col-md-6 col-xl-4" key={value.title}>
+                                <div className="mil-icon-box-2 mil-mb-60">
+                                    <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
+                                        <img src="/img/icons/md/10.svg" alt="icon" />
+                                    </div>
+                                    <div className="mil-box-text">
+                                        <h4 className="mil-mb-30">{value.title}</h4>
+                                        <p className="mil-box-text">{value.text}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="col-md-6 col-xl-4">
-                            <div className="mil-icon-box-2 mil-mb-60">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                                <div className="mil-box-text">
-                                    <h4 className="mil-mb-30">We Take</h4>
-                                    <p className="mil-box-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-xl-4">
-                            <div className="mil-icon-box-2 mil-mb-60">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                                <div className="mil-box-text">
-                                    <h4 className="mil-mb-30">We Value</h4>
-                                    <p className="mil-box-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-xl-4">
-                            <div className="mil-icon-box-2 mil-mb-60">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                                <div className="mil-box-text">
-                                    <h4 className="mil-mb-30">We Believe</h4>
-                                    <p className="mil-box-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-xl-4">
-                            <div className="mil-icon-box-2 mil-mb-60">
-                                <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <img src="/img/icons/md/10.svg" alt="icon" />
-                                </div>
-                                <div className="mil-box-text">
-                                    <h4 className="mil-mb-30">We Say &ldquo;We&rdquo;</h4>
-                                    <p className="mil-box-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
-            {/* features end */}
+            {/* values end */}
 
-            {/* contact */}
-            <section className="mil-contact mil-gradient-bg mil-p-120-0">
-                <div className="mil-deco mil-deco-accent" style={{ top: 0, right: '10%' }}></div>
+            {/* team & culture */}
+            <section className="mil-p-120-60">
                 <div className="container">
-                    <h2 className="mil-light mil-mb-90">
-                        Contact <span className="mil-accent">Me</span>
-                    </h2>
-                    <form onSubmit={submit}>
-                        <div className="row">
-                            <div className="col-lg-6">
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Name</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter Your Name Here"
-                                        value={data.first_name}
-                                        onChange={(e) => setData('first_name', e.target.value)}
-                                    />
-                                    {errors.first_name && <p className="mil-text-sm mil-accent">{errors.first_name}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input type="email" id="email" placeholder="Your Email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
-                                    {errors.email && <p className="mil-text-sm mil-accent">{errors.email}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-60">
-                                    <label>
-                                        <span className="mil-light">Phone</span>
-                                        <span className="mil-light-soft">Optional</span>
-                                    </label>
-                                    <input type="number" placeholder="Your Phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
-                                </div>
-                                <div className="mil-attach-frame mil-mb-60">
-                                    <i className="fas fa-paperclip"></i>
-                                    <label className={`mil-custom-file-input${data.attachment ? ' mil-with-file' : ''}`}>
-                                        <span>{data.attachment ? data.attachment.name : 'Attach your file'}</span>
-                                        <input type="file" id="mil-file-input" onChange={(e) => setData('attachment', e.target.files[0] ?? null)} />
-                                    </label>
-                                    <p className="mil-text-sm mil-light-soft">up to 20MB</p>
-                                </div>
-                            </div>
-                            <div className="col-lg-6">
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <textarea placeholder="Your Message" value={data.message} onChange={(e) => setData('message', e.target.value)}></textarea>
-                                    {errors.message && <p className="mil-text-sm mil-accent">{errors.message}</p>}
-                                </div>
-                                <p className="mil-text-sm mil-light-soft mil-mb-15">We will process your personal information in accordance with our Privacy Policy.</p>
+                    <span className="mil-suptitle mil-suptitle-2 mil-mb-30 mil-text-center block">{t('about.team.title')}</span>
+                    <h2 className="mil-mb-30 text-center">{t('about.team.subtitle')}</h2>
+                    <p className="mil-text-center mil-dark-soft mil-mb-60 max-w-2xl mx-auto">{t('about.team.cultureDesc')}</p>
 
-                                <div className="mil-checbox-frame mil-mb-60">
-                                    <input className="mil-checkbox" id="checkbox-1" type="checkbox" value="value" />
-                                    <label htmlFor="checkbox-1" className="mil-text-sm mil-light">
-                                        I would like to be contacted with news and updates about your{' '}
-                                        <a href="#." className="mil-accent">
-                                            events and services
-                                        </a>
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <button className="mil-button mil-accent-bg mil-fw" disabled={processing}>
-                                    <span>{recentlySuccessful ? 'Message envoyé !' : 'Send Message Now'}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
+                        {TEAM_MEMBERS.map((member) => (
+                            <TeamMemberCard key={member.id} member={member} />
+                        ))}
+                    </div>
                 </div>
             </section>
-            {/* contact end */}
+            {/* team & culture end */}
+
+            <ContactSection data={data} setData={setData} errors={errors} processing={processing} recentlySuccessful={recentlySuccessful} onSubmit={submit} />
         </MainLayout>
     );
 }

@@ -10,23 +10,23 @@ const vacancies = [
 ];
 
 const benefits = [
-    { img: 10, icon: 1, title: 'Continuous Learning' },
-    { img: 11, icon: 2, title: 'Consectetur adipiscing elit' },
-    { img: 12, icon: 3, title: 'Dolore magna aliqua' },
+    { img: '/img/staff/1H5A0381.jpg', icon: 1, title: 'Continuous Learning' },
+    { img: '/img/staff/1H5A0543.jpg', icon: 2, title: 'Consectetur adipiscing elit' },
+    { img: '/img/staff/1H5A0381.jpg', icon: 3, title: 'Dolore magna aliqua' },
 ];
 
 const posts = [
-    { img: 1, size: 'mil-slide-50', reverse: false },
-    { img: 2, size: 'mil-slide-25', reverse: true },
-    { img: 3, size: 'mil-slide-25', reverse: false },
-    { img: 4, size: 'mil-slide-50', reverse: false },
-    { img: 5, size: 'mil-slide-25', reverse: true },
-    { img: 6, size: 'mil-slide-25', reverse: false },
+    { img: '/img/staff/1H5A0381.jpg', size: 'mil-slide-50', reverse: false },
+    { img: '/img/staff/1H5A0543.jpg', size: 'mil-slide-25', reverse: true },
+    { img: '/img/staff/1H5A0381.jpg', size: 'mil-slide-25', reverse: false },
+    { img: '/img/staff/1H5A0543.jpg', size: 'mil-slide-50', reverse: false },
+    { img: '/img/staff/1H5A0381.jpg', size: 'mil-slide-25', reverse: true },
+    { img: '/img/staff/1H5A0543.jpg', size: 'mil-slide-25', reverse: false },
 ];
 
 export default function Careers() {
     return (
-        <MainLayout title="Access Technologies Solutions">
+        <MainLayout title="Access Technologies Solution (ACS)">
             {/* banner */}
             <div className="mil-banner-sm mil-deep-bg">
                 <img src="/img/deco/map.png" alt="background" className="mil-background-image" />
@@ -120,7 +120,7 @@ export default function Careers() {
                         <div className="col-xl-6">
                             <div className="mil-about-illustration-2">
                                 <div className="mil-image-frame">
-                                    <img src="/img/photo/8.jpg" alt="Office" />
+                                    <img src="/img/staff/1H5A0381.jpg" alt="Office" />
                                 </div>
                                 <a href="#." className="mil-play-button">
                                     <i className="fas fa-play"></i>
@@ -200,7 +200,7 @@ export default function Careers() {
                             {benefits.map((b, i) => (
                                 <div className="swiper-slide" key={i}>
                                     <div className="mil-banner-slide">
-                                        <img src={`/img/photo/${b.img}.jpg`} alt="banner" className="mil-banner-bg" data-swiper-parallax="-100" data-swiper-parallax-scale="1.1" />
+                                        <img src={b.img} alt="banner" className="mil-banner-bg" data-swiper-parallax="-100" data-swiper-parallax-scale="1.1" />
                                         <div className="mil-overlay"></div>
                                         <div className="row justify-content-end align-items-center">
                                             <div className="col-lg-8 col-xl-6" data-swiper-parallax-y="-300">
@@ -224,19 +224,6 @@ export default function Careers() {
             </section>
             {/* banners slider end */}
 
-            {/* partners */}
-            <div className="mil-partners mil-p-90-60">
-                <div className="container">
-                    <div className="mil-partners-frame">
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
-                            <a href="#." key={n}>
-                                <img src={`/img/partners/${n}.png`} alt="partner" />
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            </div>
-            {/* partners end */}
 
             <div className="container">
                 <div className="mil-divider"></div>
@@ -282,7 +269,7 @@ export default function Careers() {
                                     <Link href={route('publication')} className={`mil-card${post.size === 'mil-slide-25' ? ' mil-card-sm' : ''}${post.reverse ? ' mil-reverse-sm' : ''}`}>
                                         {!post.reverse && (
                                             <div className="mil-cover-frame">
-                                                <img src={`/img/blog/${post.img}.jpg`} alt="project" />
+                                                <img src={post.img} alt="project" />
                                             </div>
                                         )}
                                         <div className="mil-description">
@@ -298,7 +285,7 @@ export default function Careers() {
                                         </div>
                                         {post.reverse && (
                                             <div className="mil-cover-frame">
-                                                <img src={`/img/blog/${post.img}.jpg`} alt="project" />
+                                                <img src={post.img} alt="project" />
                                             </div>
                                         )}
                                     </Link>

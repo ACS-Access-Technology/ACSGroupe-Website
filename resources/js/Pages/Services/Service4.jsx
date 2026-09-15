@@ -1,8 +1,16 @@
 import MainLayout from '@/Layouts/MainLayout';
 import Slider from '@/Components/Slider';
 import { Link, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { SERVICE4_COURSES as COURSES, THEME_E, THEME_F } from '@/data/acsExpertise';
+import { useLanguage } from '@/Context/LanguageContext';
+import ContactSection from '@/Components/ContactSection';
+import PageHeader from '@/Components/UI/PageHeader';
+
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
 export default function Service4() {
+    const { t, language } = useLanguage();
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         first_name: '',
         email: '',
@@ -11,31 +19,25 @@ export default function Service4() {
         attachment: null,
     });
 
+    useEffect(() => {
+        console.info('[Language] Loaded page translation for:', window.location.pathname, 'in language:', language);
+    }, [language]);
+
     const submit = (e) => {
         e.preventDefault();
         post(route('contact.store'), { forceFormData: true });
     };
 
     return (
-        <MainLayout title="Intelligence Artificielle — Access Technologies Solutions">
+        <MainLayout title="Intelligence Artificielle — Access Technologies Solution (ACS)">
             {/* banner */}
-            <div className="mil-banner-sm mil-deep-bg">
-                <img src="/img/deco/map.png" alt="background" className="mil-background-image" />
-                <div className="mil-deco mil-deco-accent" style={{ top: '47%', right: '10%', transform: 'rotate(90deg)' }}></div>
-                <div className="mil-banner-content">
-                    <div className="container mil-relative">
-                        <ul className="mil-breadcrumbs mil-mb-30">
-                            <li>
-                                <Link href={route('home')}>Accueil</Link>
-                            </li>
-                            <li>
-                                <Link href={route('services.service1')}>Services</Link>
-                            </li>
-                        </ul>
-                        <h2 className="mil-uppercase">Intelligence Artificielle</h2>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title={t('service4.pageTitle')}
+                breadcrumbs={[
+                    { label: t('nav.home'), href: route('home') },
+                    { label: t('nav.services'), href: route('services.service1') },
+                ]}
+            />
             {/* banner end */}
 
             {/* about */}
@@ -47,13 +49,17 @@ export default function Service4() {
                             <div className="mil-circle-illustration mil-with-dots-2 mil-mb-60" data-swiper-parallax-scale=".8">
                                 <div className="mil-circle-bg"></div>
                                 <div className="mil-image-frame">
-                                    <img src="/img/faces/t4.png" alt="img" />
+                                    <img
+                                        src="https://images.unsplash.com/photo-1709120395858-92f1c7c577f5?auto=format&fit=crop&w=900&q=80"
+                                        alt="Expert en cybersécurité — Access Technologies Solution (ACS)"
+                                        loading="lazy"
+                                    />
                                 </div>
                             </div>
                         </div>
                         <div className="col-xl-7">
                             <h2 className="mil-mb-30">
-                                Protect Your IT Environments With <span className="mil-accent">Powerful Cloud Security</span> Solutions and Always on Support
+                                {t('service4.bannerHeading')} <span className="mil-accent">{t('service4.bannerHeadingAccent')}</span> {t('service4.bannerHeadingSuffix')}
                             </h2>
                             <div className="mil-hori-box mil-mb-30">
                                 <div className="mil-mr-30">
@@ -61,13 +67,11 @@ export default function Service4() {
                                         <img src="/img/icons/md/1.svg" alt="icon" />
                                     </div>
                                 </div>
-                                <p>
-                                    Our <span className="mil-accent">certified cloud security</span> experts help protect your environments across hyperscale public and private clouds so you can run your business confidence.
-                                </p>
+                                <p>{t('service4.bannerText')}</p>
                             </div>
-                            <a href="#." className="mil-button mil-border mil-mb-30">
-                                <span>Get in Touch</span>
-                            </a>
+                            <Link href={route('contact')} className="mil-button mil-border mil-mb-30">
+                                <span>{t('common.getInTouch')}</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -83,30 +87,22 @@ export default function Service4() {
                 <div className="container">
                     <div className="row">
                         <div className="col-xl-7">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Discover Our Company</span>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('common.ourOffers')}</span>
                             <h2 className="mil-mb-30">
-                                Explore <span className="mil-accent">Cloud Security</span> Solutions
+                                {THEME_E.title}
                             </h2>
-                            <p className="mil-mb-90">The constant evolution of threats and the race for more sophisticated tools to combat them means that security is changing rapidly.</p>
+                            <p className="mil-mb-90">{t('service4.offersIntro')}</p>
                         </div>
                     </div>
                     <div className="row">
-                        {[
-                            ['I', 'Application Security'],
-                            ['II', 'Data Protection'],
-                            ['III', 'Network Security'],
-                            ['IV', 'Security Strategy'],
-                            ['V', 'Detection and Response'],
-                            ['VI', 'Elastic Engineering'],
-                        ].map(([num, label]) => (
-                            <div className="col-xl-4" key={num}>
+                        {THEME_E.offers.map((label, i) => (
+                            <div className="col-xl-4" key={label}>
                                 <div className="mil-hover-card mil-box-center mil-mb-30">
                                     <div className="mil-deco mil-deco-accent" style={{ top: '-10%', right: '-10%' }}></div>
                                     <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                        <h3>{num}</h3>
+                                        <h3>{ROMAN[i]}</h3>
                                     </div>
                                     <h5 className="mil-mb-30">{label}</h5>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                                 </div>
                             </div>
                         ))}
@@ -120,26 +116,20 @@ export default function Service4() {
                 <div className="container">
                     <div className="row">
                         <div className="col-xl-7">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Explore More Solutions</span>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('common.ourOffers')}</span>
                             <h2 className="mil-mb-90">
-                                Boost Your <span className="mil-accent">Advantage</span>
+                                {THEME_F.title}
                             </h2>
                         </div>
                     </div>
                     <div className="row">
-                        {[
-                            ['I', <>Cloud Native <br />Security Services</>],
-                            ['II', <>Multi <br />Cloud Security</>],
-                            ['III', <>On Site Security <br />and Compliance</>],
-                            ['IV', <>Consectetur <br />adipiscing elit</>],
-                        ].map(([num, label], i) => (
-                            <div className="col-xl-3 mil-mb-30" key={i}>
+                        {THEME_F.offers.map((label, i) => (
+                            <div className="col-xl-3 mil-mb-30" key={label}>
                                 <div className="mil-deco mil-deco-accent" style={{ top: '-10%', right: '-10%' }}></div>
                                 <div className="mil-icon-frame mil-icon-frame-md mil-icon-bg mil-mb-30">
-                                    <h3>{num}</h3>
+                                    <h3>{ROMAN[i]}</h3>
                                 </div>
                                 <h5 className="mil-mb-30">{label}</h5>
-                                <p>Lorem ipsum dolor sit amet, adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                             </div>
                         ))}
                     </div>
@@ -153,18 +143,16 @@ export default function Service4() {
                 <div className="container">
                     <div className="row justify-content-between align-items-center">
                         <div className="col-xl-4">
-                            <span className="mil-suptitle mil-suptitle-2 mil-light mil-mb-30">Explore More Solutions</span>
+                            <span className="mil-suptitle mil-suptitle-2 mil-light mil-mb-30">{t('service4.exploreSuptitle')}</span>
                             <h2 className="mil-light mil-mb-90">
-                                Do You Know what Your <span className="mil-accent">Cybersecurity</span> Risk Score Is?
+                                {t('service4.riskHeadingPrefix')} <span className="mil-accent">{t('service4.riskHeadingAccent')}</span> {t('service4.riskHeadingSuffix')}
                             </h2>
                         </div>
                         <div className="col-xl-7 mil-mb-30">
-                            <p className="mil-light-soft mil-mb-30">
-                                By answering these simple questions about your cybersecurity technology, processes, and people, you&apos;ll receive a cybersecurity risk score against our baseline that can help you identify common security gaps in your environment that you may not be aware of.
-                            </p>
-                            <a href="#." className="mil-button mil-border mil-light">
-                                <span>Start Now</span>
-                            </a>
+                            <p className="mil-light-soft mil-mb-30">{t('service4.riskText')}</p>
+                            <Link href={route('contact')} className="mil-button mil-border mil-light">
+                                <span>{t('service4.startNow')}</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -177,18 +165,18 @@ export default function Service4() {
                 <div className="container">
                     <div className="row align-items-center mil-mb-60-adapt">
                         <div className="col-md-6 col-xl-6">
-                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">Unlimited Training</span>
-                            <h2 className="mil-mb-30">Latest Courses</h2>
+                            <span className="mil-suptitle mil-suptitle-2 mil-mb-30">{t('service4.coursesSuptitle')}</span>
+                            <h2 className="mil-mb-30">{t('service4.coursesHeading')}</h2>
                         </div>
                         <div className="col-md-6 col-xl-6">
                             <div className="mil-adaptive-right">
                                 <div className="mil-slider-nav mil-mb-30">
                                     <div className="mil-slider-btn-prev mil-courses-prev">
                                         <i className="fas fa-arrow-left"></i>
-                                        <span className="mil-h6">Prev</span>
+                                        <span className="mil-h6">{t('common.prev')}</span>
                                     </div>
                                     <div className="mil-slider-btn-next mil-courses-next">
-                                        <span className="mil-h6">Next</span>
+                                        <span className="mil-h6">{t('common.next')}</span>
                                         <i className="fas fa-arrow-right"></i>
                                     </div>
                                 </div>
@@ -207,256 +195,59 @@ export default function Service4() {
                         }}
                     >
                         <div className="swiper-wrapper">
-                            <div className="swiper-slide">
-                                <a href="#." className="mil-card">
-                                    <div className="mil-cover-frame mil-mb-15">
-                                        <img src="/img/blog/1.jpg" alt="project" />
-                                    </div>
-                                    <div className="mil-description">
-                                        <div className="mil-fw-descr">
-                                            <div className="mil-card-top">
-                                                <ul className="mil-bages mil-mb-15">
-                                                    <li className="mil-dark">Security</li>
-                                                    <li className="mil-dark">Team</li>
-                                                </ul>
-                                                <div className="mil-stars mil-mb-15">
-                                                    <span className="mil-dark">4.5</span>
-                                                    <ul>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li className="mil-empty">
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="mil-divider mil-divider-left mil-mb-20"></div>
-                                            <h4 className="mil-mb-15">Cibersecurity Premium</h4>
-                                            <p className="mil-text-sm mil-mb-15">John Stone</p>
-                                            <div className="mil-text-lg mil-bold mil-accent">Free</div>
+                            {COURSES.map((course, i) => (
+                                <div className="swiper-slide" key={course.img}>
+                                    <a href="#." className="mil-card">
+                                        <div className="mil-cover-frame mil-mb-15">
+                                            <img src={course.img} alt="project" />
                                         </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div className="swiper-slide">
-                                <a href="#." className="mil-card">
-                                    <div className="mil-cover-frame mil-mb-15">
-                                        <img src="/img/projects/2.jpg" alt="project" />
-                                    </div>
-                                    <div className="mil-description">
-                                        <div className="mil-fw-descr">
-                                            <div className="mil-card-top">
-                                                <ul className="mil-bages mil-mb-15">
-                                                    <li className="mil-dark">Security</li>
-                                                    <li className="mil-dark">Team</li>
-                                                </ul>
-                                                <div className="mil-stars mil-mb-15">
-                                                    <span className="mil-dark">4.5</span>
-                                                    <ul>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li className="mil-empty">
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
+                                        <div className="mil-description">
+                                            <div className="mil-fw-descr">
+                                                <div className="mil-card-top">
+                                                    <ul className="mil-bages mil-mb-15">
+                                                        <li className="mil-dark">{t('service4.badgeSecurity')}</li>
+                                                        <li className="mil-dark">{t('service4.badgeTeam')}</li>
                                                     </ul>
+                                                    <div className="mil-stars mil-mb-15">
+                                                        <span className="mil-dark">4.5</span>
+                                                        <ul>
+                                                            {[1, 2, 3, 4].map((s) => (
+                                                                <li key={s}>
+                                                                    <i className="fas fa-star"></i>
+                                                                </li>
+                                                            ))}
+                                                            <li className="mil-empty">
+                                                                <i className="fas fa-star"></i>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="mil-divider mil-divider-left mil-mb-20"></div>
-                                            <h4 className="mil-mb-15">Cibersecurity Premium</h4>
-                                            <p className="mil-text-sm mil-mb-15">John Stone</p>
-                                            <div className="mil-text-lg mil-dark mil-bold">$22.99 us</div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div className="swiper-slide">
-                                <a href="#." className="mil-card">
-                                    <div className="mil-cover-frame mil-mb-15">
-                                        <img src="/img/projects/1.jpg" alt="project" />
-                                    </div>
-                                    <div className="mil-description">
-                                        <div className="mil-fw-descr">
-                                            <div className="mil-card-top">
-                                                <ul className="mil-bages mil-mb-15">
-                                                    <li className="mil-dark">Security</li>
-                                                    <li className="mil-dark">Team</li>
-                                                </ul>
-                                                <div className="mil-stars mil-mb-15">
-                                                    <span className="mil-dark">4.5</span>
-                                                    <ul>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li className="mil-empty">
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="mil-divider mil-divider-left mil-mb-20"></div>
-                                            <h4 className="mil-mb-15">Cibersecurity Premium</h4>
-                                            <p className="mil-text-sm mil-mb-15">John Stone</p>
-                                            <div className="mil-text-lg mil-bold">
-                                                <s className="mil-text-sm">$15.99 us</s> &nbsp; <span className="mil-accent">$50.99 us</span>
+                                                <div className="mil-divider mil-divider-left mil-mb-20"></div>
+                                                <h4 className="mil-mb-15">{t('service4.courseTitle')}</h4>
+                                                <p className="mil-text-sm mil-mb-15">John Stone</p>
+                                                {course.priceKey ? (
+                                                    <div className="mil-text-lg mil-bold mil-accent">{t('service4.free')}</div>
+                                                ) : course.oldPrice ? (
+                                                    <div className="mil-text-lg mil-bold">
+                                                        <s className="mil-text-sm">{course.oldPrice}</s> &nbsp; <span className="mil-accent">{course.price}</span>
+                                                    </div>
+                                                ) : i === 1 ? (
+                                                    <div className="mil-text-lg mil-dark mil-bold">{course.price}</div>
+                                                ) : (
+                                                    <div className="mil-dark mil-bold">{course.price}</div>
+                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div className="swiper-slide">
-                                <a href="#." className="mil-card">
-                                    <div className="mil-cover-frame mil-mb-15">
-                                        <img src="/img/blog/3.jpg" alt="project" />
-                                    </div>
-                                    <div className="mil-description">
-                                        <div className="mil-fw-descr">
-                                            <div className="mil-card-top">
-                                                <ul className="mil-bages mil-mb-15">
-                                                    <li className="mil-dark">Security</li>
-                                                    <li className="mil-dark">Team</li>
-                                                </ul>
-                                                <div className="mil-stars mil-mb-15">
-                                                    <span className="mil-dark">4.5</span>
-                                                    <ul>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li>
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                        <li className="mil-empty">
-                                                            <i className="fas fa-star"></i>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="mil-divider mil-divider-left mil-mb-20"></div>
-                                            <h4 className="mil-mb-15">Cibersecurity Premium</h4>
-                                            <p className="mil-text-sm mil-mb-15">John Stone</p>
-                                            <div className="mil-dark mil-bold">19.99 us$</div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
+                                    </a>
+                                </div>
+                            ))}
                         </div>
                     </Slider>
                 </div>
             </section>
             {/* courses end */}
 
-            {/* contact */}
-            <section className="mil-contact mil-gradient-bg mil-p-120-0">
-                <div className="mil-deco mil-deco-accent" style={{ top: 0, right: '10%' }}></div>
-                <div className="container">
-                    <h2 className="mil-light mil-mb-90">
-                        Contact <span className="mil-accent">Us</span>
-                    </h2>
-                    <form onSubmit={submit}>
-                        <div className="row">
-                            <div className="col-lg-6">
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Name</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter Your Name Here"
-                                        value={data.first_name}
-                                        onChange={(e) => setData('first_name', e.target.value)}
-                                    />
-                                    {errors.first_name && <p className="mil-text-sm mil-accent">{errors.first_name}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <input type="email" id="email" placeholder="Your Email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
-                                    {errors.email && <p className="mil-text-sm mil-accent">{errors.email}</p>}
-                                </div>
-                                <div className="mil-input-frame mil-mb-60">
-                                    <label>
-                                        <span className="mil-light">Phone</span>
-                                        <span className="mil-light-soft">Optional</span>
-                                    </label>
-                                    <input type="number" placeholder="Your Phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
-                                </div>
-                                <div className="mil-attach-frame mil-mb-60">
-                                    <i className="fas fa-paperclip"></i>
-                                    <label className={`mil-custom-file-input${data.attachment ? ' mil-with-file' : ''}`}>
-                                        <span>{data.attachment ? data.attachment.name : 'Attach your file'}</span>
-                                        <input type="file" id="mil-file-input" onChange={(e) => setData('attachment', e.target.files[0] ?? null)} />
-                                    </label>
-                                    <p className="mil-text-sm mil-light-soft">up to 20MB</p>
-                                </div>
-                            </div>
-                            <div className="col-lg-6">
-                                <div className="mil-input-frame mil-mb-30">
-                                    <label>
-                                        <span className="mil-light">Email Adress</span>
-                                        <span className="mil-accent">Required</span>
-                                    </label>
-                                    <textarea placeholder="Your Message" value={data.message} onChange={(e) => setData('message', e.target.value)}></textarea>
-                                    {errors.message && <p className="mil-text-sm mil-accent">{errors.message}</p>}
-                                </div>
-                                <p className="mil-text-sm mil-light-soft mil-mb-15">We will process your personal information in accordance with our Privacy Policy.</p>
-
-                                <div className="mil-checbox-frame mil-mb-60">
-                                    <input className="mil-checkbox" id="checkbox-1" type="checkbox" value="value" />
-                                    <label htmlFor="checkbox-1" className="mil-text-sm mil-light">
-                                        I would like to be contacted with news and updates about your{' '}
-                                        <a href="#." className="mil-accent">
-                                            events and services
-                                        </a>
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-12">
-                                <button className="mil-button mil-accent-bg mil-fw" disabled={processing}>
-                                    <span>{recentlySuccessful ? 'Message envoyé !' : 'Send Message Now'}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </section>
-            {/* contact end */}
+            <ContactSection data={data} setData={setData} errors={errors} processing={processing} recentlySuccessful={recentlySuccessful} onSubmit={submit} />
         </MainLayout>
     );
 }

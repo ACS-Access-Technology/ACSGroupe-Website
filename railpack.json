@@ -1,0 +1,39 @@
+{
+  "$schema": "https://railpack.com/config.schema.json",
+  "buildAptPackages": [
+    "bison",
+    "re2c",
+    "libcurl4-openssl-dev",
+    "libonig-dev",
+    "libzip-dev",
+    "libsodium-dev",
+    "libgd-dev",
+    "libjpeg-dev",
+    "libpng-dev",
+    "libwebp-dev",
+    "libfreetype6-dev",
+    "libicu-dev",
+    "libxslt1-dev"
+  ],
+  "packages": {
+    "php": "8.4",
+    "node": "20"
+  },
+  "phases": {
+    "install": {
+      "cmds": [
+        "composer install --no-dev --optimize-autoloader",
+        "npm ci"
+      ]
+    },
+    "build": {
+      "cmds": [
+        "npm run build"
+      ]
+    }
+  },
+  "deploy": {
+    "aptPackages": ["libpq5"],
+    "startCmd": "php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=$PORT"
+  }
+}

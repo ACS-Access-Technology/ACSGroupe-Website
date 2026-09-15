@@ -3,10 +3,10 @@ import { Link } from '@inertiajs/react';
 
 export default function ComingSoon() {
     return (
-        <MainLayout title="Access Technologies Solutions">
+        <MainLayout title="Access Technologies Solution (ACS)">
             {/* coming soon */}
             <div className="mil-dark-bg mil-add-page">
-                <img src="/img/photo/20.jpg" alt="background" className="mil-background-image" />
+                <img src="/img/staff/1H5A0543.jpg" alt="background" className="mil-background-image" />
                 <div className="mil-overlay"></div>
                 <div className="container">
                     <div className="row justify-content-between">
@@ -21,7 +21,7 @@ export default function ComingSoon() {
                             <div className="row align-items-center">
                                 <div className="col-lg-5">
 
-                                    <h4 className="mil-light mil-mb-30">Join The <span className="mil-accent">Access Technologies Solutions</span><br /> Experience</h4>
+                                    <h4 className="mil-light mil-mb-30">Join The <span className="mil-accent">Access Technologies Solution (ACS)</span><br /> Experience</h4>
 
                                 </div>
                                 <div className="col-lg-7">
@@ -46,7 +46,7 @@ export default function ComingSoon() {
 
             <div className="mil-addition-bottom">
                 <div className="container-fluid">
-                    <p className="mil-text-sm mil-light-soft">© Access Technologies Solutions 2026.</p>
+                    <p className="mil-text-sm mil-light-soft">© Access Technologies Solution (ACS) 2026.</p>
                     <p className="mil-text-sm mil-light-soft">Tous droits réservés.</p>
                 </div>
             </div>

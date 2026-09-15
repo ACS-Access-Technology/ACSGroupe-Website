@@ -1,0 +1,315 @@
+/* =========================================================================
+   Access Technologies Solution (ACS) — styles additionnels
+   Bouton de langue (FR|EN) et bouton de mode sombre (Soleil/Lune) ajoutés
+   dans la Navbar. Reprend les conventions déjà utilisées par le template
+   (voir .mil-search-icon dans style.css) pour rester visuellement cohérent
+   sur la navbar transparente comme sur la navbar pleine au scroll.
+   ========================================================================= */
+
+/* Bande défilante infinie ("marquee") pour la section "Our Latest Projects" :
+   le contenu est dupliqué en JS puis translaté de -50% pour boucler sans coupure. */
+@keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Correctif menu mobile : le tiroir déroulant du thème (.mil-navigation)
+   est blanc par défaut (style.css), alors que les liens de la Navbar sont
+   forcés en blanc (text-white!) pour rester lisibles sur le header sombre/
+   transparent du desktop -> texte blanc sur fond blanc, invisible, une fois
+   le menu ouvert sur mobile/tablette. Le tiroir suit désormais le thème
+   clair/sombre du site (classe `dark` sur <html>, pilotée par le toggle de
+   Navbar.jsx) au lieu d'être figé en sombre en permanence : fond blanc pur
+   + texte foncé en mode clair, fond bleu nuit + texte blanc en mode sombre.
+   Portée strictement <= 1200px (le breakpoint déjà utilisé par le thème pour
+   ce composant) : le header desktop n'est jamais concerné par ces règles.
+   Les `!important` sont nécessaires pour l'emporter sur les classes Tailwind
+   `text-white!`/`fill-white!` posées sur les liens/icônes pour le header
+   desktop transparent. */
+@media screen and (max-width: 1200px) {
+    /* Mode clair (défaut) : fond blanc pur, texte/icônes foncés pour le contraste */
+    html:not(.dark) .mil-top-panel .mil-navigation {
+        background-color: #fff;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, .12);
+    }
+
+    /* Ne cible que les liens inactifs (classe Tailwind text-white!) pour ne
+       pas écraser le rouge du lien de la page active (text-red-600!). */
+    html:not(.dark) .mil-top-panel .mil-navigation nav ul li a.text-white\!,
+    html:not(.dark) .mil-top-panel .mil-navigation nav .mil-lang-toggle,
+    html:not(.dark) .mil-top-panel .mil-navigation nav .mil-theme-toggle {
+        color: #0f172a !important;
+    }
+
+    html:not(.dark) .mil-top-panel .mil-navigation nav .mil-search-icon svg path {
+        fill: #0f172a !important;
+    }
+
+    html:not(.dark) .mil-top-panel .mil-navigation nav ul li.mil-has-children ul {
+        background-color: #f8fafc;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .08);
+    }
+
+    /* Mode sombre : comportement historique inchangé (tiroir bleu nuit) */
+    html.dark .mil-top-panel .mil-navigation {
+        background-color: #0f172a;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+    }
+
+    html.dark .mil-top-panel .mil-navigation nav ul li.mil-has-children ul {
+        background-color: #1e293b;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+    }
+
+    .mil-top-panel .mil-navigation nav ul li a:hover,
+    .mil-top-panel .mil-navigation nav ul li.mil-has-children ul li a:hover {
+        color: #ef4444 !important;
+    }
+
+    /* Icône burger/croix : les barres sont sombres par défaut (style.css),
+       peu visibles sur le header translucide sombre de la Navbar ACS (toujours
+       teinté noir, cf. bg-black/20! dans Navbar.jsx, quel que soit le thème). */
+    .mil-menu-btn span,
+    .mil-menu-btn span:before,
+    .mil-menu-btn span:after {
+        background: #fff;
+    }
+
+    .mil-menu-btn:hover span,
+    .mil-menu-btn:hover span:before,
+    .mil-menu-btn:hover span:after {
+        background: #dc2626;
+    }
+}
+
+.mil-nav-toggles {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.mil-lang-toggle,
+.mil-theme-toggle {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 18px;
+    font-family: Sora, sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: .05em;
+    color: rgb(18, 24, 32);
+    -webkit-transition: .2s cubic-bezier(0, 0, .3642, 1);
+    transition: .2s cubic-bezier(0, 0, .3642, 1);
+}
+
+.mil-lang-toggle:hover,
+.mil-theme-toggle:hover {
+    color: #F73636;
+}
+
+.mil-lang-toggle span {
+    opacity: .4;
+}
+
+.mil-lang-toggle span.mil-lang-active {
+    opacity: 1;
+}
+
+.mil-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.mil-theme-toggle svg path,
+.mil-theme-toggle svg circle {
+    stroke: currentColor;
+}
+
+/* Navbar transparente (sur le hero) : icônes/texte blancs, comme le reste
+   de la navigation dans cet état. */
+.mil-top-panel.mil-top-panel-transparent .mil-nav-toggles .mil-lang-toggle,
+.mil-top-panel.mil-top-panel-transparent .mil-nav-toggles .mil-theme-toggle {
+    color: #fff;
+}
+
+.mil-top-panel.mil-top-panel-transparent .mil-lang-toggle:hover,
+.mil-top-panel.mil-top-panel-transparent .mil-theme-toggle:hover {
+    color: #F73636;
+}
+
+@media (max-width: 991px) {
+    .mil-nav-toggles {
+        margin: 20px 0 0;
+    }
+}
+
+/* =========================================================================
+   Hovers dynamiques site-wide (boutons, cartes, liens "See More")
+   Ces règles enrichissent les classes déjà posées sur chaque page
+   (mil-button, mil-hover-card, mil-card, mil-link) : un seul point de
+   maintenance pour un comportement homogène sur tout le site.
+   ========================================================================= */
+
+/* Modèle "pilule" unique appliqué à tous les boutons du site */
+.mil-button {
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    border-radius: 9999px;
+    border-color: rgba(220, 38, 38, .4);
+    background-color: rgba(220, 38, 38, .1);
+    /* Fond clair par défaut (mode light) => texte foncé pour garantir le contraste WCAG AA */
+    color: #0f172a;
+    font-weight: 700;
+    transition: transform .3s cubic-bezier(0, 0, .3642, 1), box-shadow .3s cubic-bezier(0, 0, .3642, 1),
+        background-color .3s cubic-bezier(0, 0, .3642, 1), border-color .3s cubic-bezier(0, 0, .3642, 1),
+        color .3s cubic-bezier(0, 0, .3642, 1);
+}
+
+/* Boutons explicitement posés sur un fond sombre (hero, sections dark) : texte blanc */
+.mil-button.mil-light {
+    color: #fff;
+}
+
+/* Boutons à fond rouge plein (mil-accent-bg) : texte blanc quel que soit le mode */
+.mil-button.mil-accent-bg {
+    color: #fff;
+}
+
+html.dark .mil-button {
+    color: #fff;
+}
+
+.mil-button:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(220, 38, 38, .4);
+}
+
+.mil-button:active {
+    transform: scale(.95);
+}
+
+/* Balayage lumineux (shine sweep) au survol */
+.mil-button:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .25);
+    transform: skewX(-12deg) translateX(-150%);
+    transition: transform 1s ease-out;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.mil-button:hover:before {
+    transform: skewX(-12deg) translateX(150%);
+}
+
+/* Le texte/icône du bouton doit rester au-dessus du balayage lumineux */
+.mil-button > span,
+.mil-button > i {
+    position: relative;
+    z-index: 1;
+}
+
+.mil-button.mil-accent-bg {
+    background-color: #dc2626;
+    border-color: transparent;
+    box-shadow: 0 10px 25px -5px rgba(220, 38, 38, .35);
+}
+
+.mil-button.mil-accent-bg:hover {
+    background-color: #b91c1c;
+    filter: none;
+    box-shadow: 0 15px 30px -5px rgba(220, 38, 38, .55);
+    transform: translateY(-4px) scale(1.03);
+}
+
+.mil-button.mil-accent-bg:active {
+    transform: translateY(0) scale(.95);
+}
+
+.mil-button.mil-border:hover {
+    transform: translateY(-4px);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+html.dark .mil-button.mil-border {
+    border-color: rgba(220, 38, 38, .4);
+    background-color: rgba(220, 38, 38, .12);
+}
+
+/* Cartes Services / Solutions / Projets : élévation + halo rouge */
+.mil-hover-card,
+.mil-card {
+    will-change: transform;
+    border: 1px solid transparent;
+    border-radius: 1.5rem;
+    transition: transform .5s cubic-bezier(0, 0, .3642, 1), box-shadow .5s cubic-bezier(0, 0, .3642, 1),
+        border-color .5s cubic-bezier(0, 0, .3642, 1);
+}
+
+.mil-hover-card:hover,
+.mil-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(220, 38, 38, .3);
+    box-shadow: 0 25px 50px -12px rgba(220, 38, 38, .15);
+}
+
+/* Coins parfaitement arrondis et fluides sur les visuels des cartes
+   "Our Latest Projects" et "Latest Thinking" (mil-card + mil-cover-frame). */
+.mil-card .mil-cover-frame {
+    border-radius: 1.5rem;
+}
+
+.mil-hover-card .mil-icon-frame,
+.mil-card .mil-icon-frame {
+    will-change: transform;
+    transition: transform .3s cubic-bezier(0, 0, .3642, 1);
+}
+
+.mil-hover-card:hover .mil-icon-frame,
+.mil-card:hover .mil-icon-frame {
+    transform: scale(1.2) rotate(6deg);
+}
+
+/* Liens "Voir plus / See More" : flèche qui glisse vers la droite */
+.mil-link i {
+    will-change: transform;
+    transition: transform .3s cubic-bezier(0, 0, .3642, 1), filter .3s cubic-bezier(0, 0, .3642, 1);
+}
+
+.mil-link:hover i {
+    transform: translateX(8px);
+}
+
+/* Uniformisation du rayon de bordure de tous les boutons ".mil-button" du
+   site (Navbar, Hero, Cartes, Formulaires, Footer) à 15px. Défini ici plutôt
+   que via une classe Tailwind sur chaque bouton : ce fichier est chargé après
+   style.css (voir app.blade.php), donc écrase déjà son .mil-button { border-
+   radius: 10px } natif sans avoir besoin de !important. */
+.mil-button {
+    border-radius: 15px;
+}
